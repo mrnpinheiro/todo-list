@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
+const cors = require('cors');
 require('dotenv').config();
 
 const Todo = require('./todo');
@@ -11,6 +12,7 @@ const port = process.env.PORT;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true}));
 app.use(morgan('dev'));
+app.use(cors());
 
 app.post('/todos', async (req, res) => {
 	const text = req.body.text;
@@ -26,7 +28,7 @@ app.post('/todos', async (req, res) => {
 app.get('/todos/:id', async (req, res) => {
 	const id = req.params.id;
 
-	const findTodo = await Todo.findOne({ _id: id }).exec();
+    const findTodo = await Todo.findOne({ _id: id }).exec();
 
   return res.json(findTodo);
 });

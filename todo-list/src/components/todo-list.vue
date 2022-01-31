@@ -9,14 +9,15 @@
     </div>
 
     <ul class="py-4">
-      <li class="py-2 tracking-wide" v-for="todo in todos" v-bind:key="todo.id">
-        <Todo :text="todo.text" @remove="removeTodo(todo.id)"/>
+      <li class="py-2 tracking-wide" v-for="todo in todos" v-bind:key="todo._id">
+        <Todo :text="todo.text" @remove="removeTodo(todo._id)"/>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
 import Todo from './todo';
 
 export default {
@@ -26,32 +27,35 @@ export default {
   data() {
     return {
       text: '',
-      todos: [
-        {text: 'Aprender node', id: 0},
-        {text: 'Aprender vue', id: 1}
-      ],
-      nextId: 2
+      todos: []
     }
   },
   methods: {
-    addTodo() {
+    async addTodo() {
       if (!this.text) {
         return;
       }
-
-      this.todos.push({
-        text: this.text,
-        id: this.nextId++
-      });
+      await axios.post('http://localhost:3000/todos', {
+        text: this.text
+      })
+      this.todos = await getTodos();
     },
 
-    removeTodo(id) {
-      this.todos = this.todos.filter((todo) => {
-        return todo.id !== id;
-      });
+    async removeTodo(id) {
+      await axios.delete(`http://localhost:3000/todos/${id}`);
+      this.todos = await getTodos();
     }
+  },
+  async beforeCreate() {
+    this.todos = await getTodos();
   }
 }
+
+async function getTodos() {
+  const response = await axios.get('http://localhost:3000/todos');
+  return response.data
+}
+
 </script>
 
 <style scoped>
